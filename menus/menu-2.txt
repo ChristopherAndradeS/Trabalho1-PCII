@@ -1,0 +1,8 @@
+<center>Menu - Listas Telefônicas
+<br>
+<t>1. Incluir Novo Nome<br>
+<t>2. Incluir Telefone<br>
+<t>3. Excluir Telefone<br>
+<t>4. Excluir Nome<br>
+<t>5. Consultar Telefone<br>
+<request-input-int>
