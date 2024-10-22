@@ -1,3 +1,4 @@
+<br>
 <center>Excluir Telefone<br>
 <br>
 <t>» Digite, separado por espaço, um NOME e um TELEFONE para EXCLUIR:<br>

@@ -1,4 +1,5 @@
-<center>Exluir Telefone<br>
 <br>
-<t>» Digite um nome para CONSULTAR sua lista telefônica:<br>
+<center>Consultar Telefone<br>
+<br>
+<t>» Digite um NOME para CONSULTAR sua lista telefônica:<br>
 <request-input-str>

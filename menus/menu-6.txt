@@ -1,4 +1,5 @@
+<br>
 <center>Exluir Nome<br>
 <br>
-<t>» Digite um nome para EXCLUIR do dicionário:<br>
+<t>» Digite um NOME para EXCLUIR do dicionário:<br>
 <request-input-str>
