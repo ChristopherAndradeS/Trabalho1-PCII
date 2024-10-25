@@ -1,5 +1,8 @@
+<bounds>
 <br>
 <center>Consultar Telefone<br>
 <br>
-<t>» Digite um NOME para CONSULTAR sua lista telefônica:<br>
+<t>» Digite um NOME para CONSULTAR sua lista telefônica:
+<br>
+<bounds>
 <request-input-str>

@@ -1,3 +1,4 @@
+<bounds>
 <br>
 <center>Menu | Listas Telefônicas<br>
 <br>
@@ -9,4 +10,5 @@
 <br><br>
 <center>[ i ] '/quit' para encerrar o programa
 <br>
+<bounds>
 <request-input-int>

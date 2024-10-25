@@ -1,5 +1,8 @@
+<bounds>
 <br>
 <center>Incluir Novo Nome<br>
 <br>
-<t>» Digite, separado por espaço, um NOME e uma LISTA de telefones para CRIAR no dicionário:<br>
+<t>» Digite, separado por espaço, um NOME e uma LISTA de telefones para CRIAR no dicionário:
+<br>
+<bounds>
 <request-input-str>

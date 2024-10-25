@@ -23,6 +23,7 @@ TERMINAL_INPUT_MSG_INT          = '\n[ » ] Selecione uma opção: '   # Menssag
 TERMINAL_INPUT_MSG_STRING       = '\n[ » ] Insira um texto: '       # Menssagem de solicitação de input para texto
 TERMINAL_WIDTH                  = (100)                             # Largura do terminal em "_"
 DIR_DEFAULT                     = 'scriptfiles'                    # Nome da pasta de arquivos de código
+FILE_NAME                       = "phones"
 FILE_ENCODING                   = 'utf-8'                           # Unicode dos arquivos do menu
 #
 #
@@ -38,7 +39,8 @@ INPUT_CMD                       = (0x80)                            # flag do ti
 INVALID_INPUT_INT               = (-1)                              # flag para 'input númerico inválido'
 INVALID_INPUT_STRING            = 'null'                            # flag para 'input texto inválido' 
 ERROR_VALUE                     = 0xEE                              # Valor de retorno p/ 'erro'
-SUCESS_VALUE                    = 0xAA                              # Valor de retorno p/ 'sucesso'                 
+SUCESS_VALUE                    = 0xAA                              # Valor de retorno p/ 'sucesso'       
+REMOVE_KEY_VALUE                = 0xDD                              # 
 #
 #
 #
@@ -106,6 +108,7 @@ def SendTerminalCommand(cmd):
         KillTerminal()
 
     if cmd == COMMAND_RELOAD:
+        TerminalDelay(WAITING_TIME_MS)
         ClearTerminal()
         print("\n[ » ] Reiniciando programa...\n")
         TerminalDelay(WAITING_TIME_MS)
@@ -117,17 +120,17 @@ def SendTerminalCommand(cmd):
 #   'SendTerminalWarning(msg)' envia uma mensagem de alerta a'msg' para o terminal'
 def SendTerminalWarning(msg):
     ClearTerminal()
-    print(GetTerminalBounds())
-    print("\nAlerta".center(TERMINAL_WIDTH))
+    
+    print("\n" + "Alerta".center(TERMINAL_WIDTH))
     print(msg)
     print(GetTerminalBounds())
     TerminalDelay(WAITING_TIME_MS - 500)
-    SendTerminalCommand(COMMAND_MENU)
+    SendTerminalCommand(COMMAND_QUIT)
 #
 #
 def SendTerminalMessage(msg, flag = True):
-    print(GetTerminalBounds())
-    print(msg)
+    
+    print('\n' + msg)
     if flag:
         print(GetTerminalBounds()) 
         TerminalDelay(WAITING_TIME_MS - 500)
@@ -137,8 +140,6 @@ def SendTerminalMessage(msg, flag = True):
 def GetTerminalInput(input_msg, input_type, min_range = -1, max_range = -1, len_txt = MAX_TEXT_LEN, eflag = False, directory = DIR_DEFAULT):
 
     default_msg = input_msg
-
-    print(GetTerminalBounds(), end = "")
 
     if input_type == TYPE_FILE:
         while True:
@@ -158,15 +159,15 @@ def GetTerminalInput(input_msg, input_type, min_range = -1, max_range = -1, len_
                     break
 
             if not flag:
-                input_msg = GetTerminalBounds() + f"\n[ x ] O nome digitado NÃO É VÁLIDO para nomear arquivos\n" + GetTerminalBounds()
+                input_msg = "\n[ x ] O nome digitado NÃO É VÁLIDO para nomear arquivos\n" + GetTerminalBounds()
                 continue
             
             if(len(input_txt) > len_txt):
-                input_msg = GetTerminalBounds() +  f"\n[ x ] Entrada INVÁLIDA. Escreva um NOME com no máximo 10 caracteres:\n" + GetTerminalBounds()
+                input_msg = f"\n[ x ] Entrada INVÁLIDA. Escreva um NOME com no máximo 10 caracteres:\n" + GetTerminalBounds()
                 continue
 
             if os.path.exists(directory) != eflag:
-                input_msg = GetTerminalBounds() + f"\n[ x ] \"{directory}\""
+                input_msg = f"\n[ x ] \"{directory}\""
                 input_msg += " JÁ EXISTE:\n" if not eflag else " NÃO EXISTE:\n" + GetTerminalBounds()
                 continue
 
@@ -180,22 +181,22 @@ def GetTerminalInput(input_msg, input_type, min_range = -1, max_range = -1, len_
                 if SendTerminalCommand(input_txt.removeprefix(COMMAND_PREFIX)):
                     return INPUT_CMD
                 else: 
-                    input_msg = GetTerminalBounds() +  f"\n[ x ] O comando digitado NÃO EXISTE. Tente novamente\n" + GetTerminalBounds()
+                    input_msg = f"\n[ x ] O comando digitado NÃO EXISTE. Tente novamente\n" + GetTerminalBounds()
                     continue
             
             if not input_txt.isnumeric():
-                input_msg = GetTerminalBounds() +  f"\n[ x ] Entrada INVÁLIDA. Digite um NÚMERO INTEIRO.\n" + GetTerminalBounds()
+                input_msg = f"\n[ x ] Entrada INVÁLIDA. Digite um NÚMERO INTEIRO.\n" + GetTerminalBounds()
                 continue
 
             input_value = int(input_txt)
             
             if min_range != max_range:
                 if (input_value < min_range or input_value > max_range):    
-                    input_msg = GetTerminalBounds() +  f"\n[ x ] Entrada INVÁLIDA. Digite UM VALOR entre {min_range} e {max_range}.\n"
+                    input_msg = f"\n[ x ] Entrada INVÁLIDA. Digite UM VALOR entre {min_range} e {max_range}.\n"
                     continue
             if min_range == max_range:
                 if (input_value != min_range) and min_range != -1:    
-                    input_msg = GetTerminalBounds() +  f"\n[ x ] Entrada INVÁLIDA. Só há UMA OPÇÃO {min_range}.\n" + GetTerminalBounds()
+                    input_msg = f"\n[ x ] Entrada INVÁLIDA. Só há UMA OPÇÃO {min_range}.\n" + GetTerminalBounds()
                     continue
 
             return input_value
@@ -208,11 +209,11 @@ def GetTerminalInput(input_msg, input_type, min_range = -1, max_range = -1, len_
                 if SendTerminalCommand(input_txt.removeprefix(COMMAND_PREFIX)):
                     return INPUT_CMD
                 else: 
-                    input_msg = GetTerminalBounds() +  f"\n[ x ] O comando digitado NÃO EXISTE. Tente novamente\n" + GetTerminalBounds()
+                    input_msg = f"\n[ x ] O comando digitado NÃO EXISTE. Tente novamente\n" + GetTerminalBounds()
                     continue
 
             if(len(input_txt) > len_txt):
-                input_msg = GetTerminalBounds() +  f"\n[ x ] Entrada INVÁLIDA. Escreva UM TEXTO com no MÁXIMO {MAX_TEXT_LEN} caracteres:\n" + GetTerminalBounds()
+                input_msg = f"\n[ x ] Entrada INVÁLIDA. Escreva UM TEXTO com no MÁXIMO {MAX_TEXT_LEN} caracteres:\n" + GetTerminalBounds()
                 continue
 
             return input_txt
@@ -254,7 +255,6 @@ def CreateTerminalMenu(menuid):
     ClearTerminal()
 
     txt = ''
-    print(GetTerminalBounds(), end = "")
 
     try:            
         file = open(f"menus/menu-{menuid}.txt", 'rt', encoding = FILE_ENCODING)
@@ -276,6 +276,9 @@ def CreateTerminalMenu(menuid):
             if '<right>' in line:
                 line = line.replace('<right>', "")
                 line = line.rjust(TERMINAL_WIDTH)
+            
+            if '<bounds>' in line:
+                line = GetTerminalBounds(TERMINAL_WIDTH)
 
             if line == "<request-input-str>" or line == "<request-input-int>":
                 continue
@@ -288,7 +291,7 @@ def CreateTerminalMenu(menuid):
         SendTermialInput(TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
     elif line == "<request-input-int>":
         SendTermialInput(TERMINAL_INPUT_MSG_INT, TYPE_INT, menuid, 1, 6)
-    else:
+    elif line == "<bounds>":
         print(GetTerminalBounds())
     
     return 1
@@ -390,7 +393,7 @@ def SendMenuResponse(menuid, input_value):
             return 1        
 
         if(not IsDictKeyExists(phone_dict, name)):
-            print(GetTerminalBounds() + f"\n[ ! ] O NOME '{name}' NÃO EXISTE no dicionário.\n" + f"\n» Deseja criar UM NOVO NOME '{name}' ?\n\n\t1. Sim, quero criar\n\t2. Não, quero voltar para o menu\n" + GetTerminalBounds(), end = "")
+            print(f"\n[ ! ] O NOME '{name}' NÃO EXISTE no dicionário.\n" + f"\n» Deseja criar UM NOVO NOME '{name}' ?\n\n\t1. Sim, quero criar\n\t2. Não, quero voltar para o menu\n" + GetTerminalBounds(), end = "")
             
             input_txt = ''
             input_msg = TERMINAL_INPUT_MSG_INT
@@ -535,7 +538,7 @@ def CreateDictKey(dictio, key, values_list):
 
     SendTerminalMessage(f"[ ✓ ] A CHAVE '{key}' CRIADA com SUCESSO.", False)
     SendTerminalMessage(f"[ ✓ ] O(s) VALOR(ES) {values_list} INSERIDOS(S) em '{key}' com SUCESSO.", False)
-    Save_db_dictio_file("phone_list")
+    Create_db_key(FILE_NAME, key, dictio[f"{key}"])
 
     return SUCESS_VALUE
 #
@@ -555,7 +558,7 @@ def AppendDictValue(dictio, key, value):
     dictio[f"{key}"] += [value]
 
     SendTerminalMessage(f"[ ✓ ] O(s) VALOR(ES) {value} INSERIDOS(S) em '{key}' com SUCESSO.", False)
-    Save_db_dictio_file("phone_list")
+    Save_db_key(FILE_NAME, key, dictio[f"{key}"])
 
     return SUCESS_VALUE
 #
@@ -582,7 +585,7 @@ def RemoveDictValue(dictio, key, value):
         RemoveDictKey(dictio, key)
     else:
         SendTerminalMessage(f"[ ✓ ] O VALOR {value} foi DELETADO de '{key}' com SUCESSO.", False)
-        Save_db_dictio_file("phone_list")
+        Save_db_key(FILE_NAME, key, dictio[f"{key}"])
 
     return SUCESS_VALUE
 #
@@ -597,7 +600,7 @@ def RemoveDictKey(dictio, key):
     
     dictio.pop(key)
     SendTerminalMessage(f"[ ✓ ] A CHAVE '{key}' foi DELETADO do dicionário com SUCESSO.", False)
-    Save_db_dictio_file("phone_list")
+    Save_db_key(FILE_NAME, key, REMOVE_KEY_VALUE)
 
     return SUCESS_VALUE
 #
@@ -642,29 +645,57 @@ def Create_db_dictio_file(fname):
         SendTerminalWarning(f"[ x ] NÃO foi possível CARREGAR \"{path}\"")
         return ERROR_VALUE
     else:
-        file.write(f"{fname} = ")
         file.close()
-        SendTerminalMessage(f"[ ✓ ] \"{path}\" CRIADO com SUCESSO")
-
-def Save_db_dictio_file(fname):
+    
+def Create_db_key(fname, key, value):
 
     path = f"{DIR_DEFAULT}/{fname}.dictio"
 
     try:            
         file = open(path, 'at', encoding = FILE_ENCODING)
     except IOError: 
-        SendTerminalWarning(f"[ x ] NÃO foi possível SALVAR \"{path}\"")
+        SendTerminalWarning(f"[ x ] NÃO foi possível CARREGAR \"{path}\" para SALVAR")
         return ERROR_VALUE
     else:
-        global phone_dict
-        key_list = phone_dict.keys()
+        if IsKeyExistInFile(fname, key):
+            return SendTerminalWarning(f"[ x ] A CHAVE {key} NÃO foi CRIADA em \"{path}\", pois JÁ EXISTIA")
 
-        for key in key_list:
-            file.write(f"{key} = {phone_dict[key]}\r")
+        file.write(f'{key} = {value}\n')
         file.close()
-        SendTerminalMessage(f"[ ✓ ] \"{path}\" SALVO com SUCESSO")
 
-def Load_db_dictio_file(fname):
+        SendTerminalMessage(f"[ ✓ ] Chave {key} CRIADA dentro de \"{path}\" com SUCESSO")
+
+def Save_db_key(fname, key, value):
+
+    path = f"{DIR_DEFAULT}/{fname}.dictio"
+
+    try:            
+        file = open(path, 'wt', encoding = FILE_ENCODING)
+    except IOError: 
+        SendTerminalWarning(f"[ x ] NÃO foi possível CARREGAR \"{path}\" para SALVAR")
+        return ERROR_VALUE
+    else:
+        if not IsKeyExistInFile(fname, key):
+            action = 'REMOVIDA de' if value == REMOVE_KEY_VALUE else 'SALVA em'
+            return SendTerminalWarning(f"[ x ] A CHAVE {key} NÃO foi {action} \"{path}\", pois NÃO EXISTIA")
+
+        for line in file: 
+            line = line.strip("\n")
+            [f_key, f_value] = str(line).split(" = ")
+
+            if f_key == key:
+                if value == REMOVE_KEY_VALUE:
+                    continue
+
+                file.write(f"{key} = {value}\n")
+            else:
+                file.write(f"{f_key} = {f_value}")
+        
+        file.close()
+
+        SendTerminalMessage(f"[ ✓ ] Chave {key} SALVA dentro de \"{path}\" com SUCESSO")
+
+def Load_db_dictio_file(fname, dictio):
 
     path = f"{DIR_DEFAULT}/{fname}.dictio"
 
@@ -674,38 +705,51 @@ def Load_db_dictio_file(fname):
         SendTerminalWarning(f"[ x ] NÃO foi possível CARREGAR \"{path}\"")
         return ERROR_VALUE
     else:
+        for line in file:
+            line = line.strip("\n")
 
-        line = file.read().removeprefix(f"{fname} = ")
-        line = line.strip("{}")
-        print(line.split(",")[0])
-        # global phone_dict
+            elements_list = str(line).split(" = ")
+            file_key = elements_list[0]
 
-        # for line in file:
-        #     dictio = line.split(",")
+            file_value = elements_list[1].strip("[']")
+            file_value = file_value.split("', '")
 
-        #     for pair in dictio:
-        #         elements = pair.split(":")
-        #         phone_dict.update({f"{elements[0]}" : elements[1]})
+            dictio.update({file_key: file_value})
 
-        # print(phone_dict, type(phone_dict))
         file.close()
-        # SendTerminalMessage(f"[ ✓ ] \"{path}\" CARREGADO com SUCESSO")
+        SendTerminalMessage(f"[ ✓ ] \"{path}\" CARREGADO com SUCESSO")
 
+def IsKeyExistInFile(fname, key):
+
+    path = f"{DIR_DEFAULT}/{fname}.dictio"
+
+    try:            
+        file = open(path, 'rt', encoding = FILE_ENCODING)
+    except IOError: 
+        SendTerminalWarning(f"[ x ] NÃO foi possível CARREGAR \"{path}\"")
+        return ERROR_VALUE
+    else:
+    
+        return key in file.read()
+
+    return False
+          
 #
 #   Função main()
 def main():
 
-    # fname = "phone_list"
-    # path = f"{DIR_DEFAULT}/{fname}.dictio"
+    global phone_dict
 
-    # if not os.path.exists(path):
-    #     Create_db_dictio_file(fname)
-    # else:
-    #     Load_db_dictio_file(fname)
+    path = f"{DIR_DEFAULT}/{FILE_NAME}.dictio"
+    
+    CreateTerminalMenu(MENU_INIT)
+    
+    if not os.path.exists(path):
+        Create_db_dictio_file(FILE_NAME)
+    else:
+        Load_db_dictio_file(FILE_NAME, phone_dict)
 
-    if not DEBUG_MODE:
-        CreateTerminalMenu(MENU_INIT)
-        TerminalDelay(APRESENTATION_TIME_MS)
+    TerminalDelay(APRESENTATION_TIME_MS)
 
     CreateTerminalMenu(MENU_MAIN)  
 main()

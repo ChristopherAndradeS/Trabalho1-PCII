@@ -1,3 +1,5 @@
+<bounds>
 <br>
 <center>Consultar Dicionário
 <br>
+<bounds>
