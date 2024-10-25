@@ -1,14 +1,13 @@
 <bounds>
 <br>
-<center>Trabalho 1 LAB-PCII
+<center>Apresentação | Trabalho 1 LAB-PCII
+<br>
 <br>
 » Professor: Eduardo Cunha Campos<br>
 <br>
 » Intregrantes:<br><br>
 <t>• Christopher Andrade    <t>Eng. Elétrica - T04<br>
 <t>• Henrique Nietzsch Melo <t>Eng. Elétrica - T04<br>
-<t>• Prince Pacome Djigla   <t>Eng. Elétrica - T04<br>
+<t>• Felipe Alencar Chiarini<t>Eng. Elétrica - T04<br>
 <t>• Max Muller             <t>Eng. Elétrica - T04<br><br>
-<center>Iniciando... Aguarde
-<br>
 <bounds>
