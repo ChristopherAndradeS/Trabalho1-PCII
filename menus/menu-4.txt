@@ -1,8 +1,8 @@
 <bounds>
 <br>
-<center>Incluir Telefone<br>
+<center>Incluir Telefone | Digitar Nome<br>
 <br>
-<t>» Digite, separado por espaço, um NOME e uma LISTA de telefones para ADICIONAR:
+<t>» Digite um NOME disponível para ADICIONAR UM NOVO TELEFONE:
 <br>
 <bounds>
 <request-input-str>

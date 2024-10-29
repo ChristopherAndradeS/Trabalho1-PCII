@@ -1,9 +1,9 @@
 <bounds>
 <br>
-<center>Incluir Novo Nome | Digitar Telefones<br>
+<center>Incluir Novo Nome | Digitar Lista de Telefones<br>
 <br>
-<t>» Finalizando criação da chave de '<name>': <br><br>
-<t>» Agora DIGITE uma LISTA de TELEFONES que será ADICIONADA dentro da chave:
+<t>» Chave selecionada: '<name>' <br><br>
+<t>» Agora DIGITE uma LISTA de TELEFONES que será ADICIONADA dentro da chave selecionada:
 <br>
 <bounds>
 <request-input-str>

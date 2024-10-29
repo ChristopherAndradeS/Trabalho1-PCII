@@ -1,0 +1,8 @@
+<bounds>
+<br>
+<center>Excluir Telefone | Digitar Telefone<br>
+<br>
+<t>» DIGITE um TELEFONE para EXCLUIR da chave '<name>':
+<br>
+<bounds>
+<request-input-str>

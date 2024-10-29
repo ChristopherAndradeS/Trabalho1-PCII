@@ -1,6 +1,6 @@
 <bounds>
 <br>
-<center>Exluir Nome<br>
+<center>Exluir Nome| Digitar Nome<br>
 <br>
 <t>» Digite um NOME para EXCLUIR do dicionário:
 <br>
