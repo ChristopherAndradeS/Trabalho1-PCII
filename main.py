@@ -11,7 +11,6 @@
 #
 #
 #
-DEBUG_MODE                      = False                             # Modo de Debug (True - Ativado) (False - Desativado)
 APRESENTATION_TIME_MS           = (6000)                            # Tempo (ms) do menu de apresentação
 WAITING_TIME_MS                 = (3000)                            # Tempo (ms) de espera
 MAX_TEXT_LEN                    = (256)                             # Tamanho máximo do terminal input
@@ -34,7 +33,7 @@ FILE_ENCODING                   = 'utf-8'                           # Unicode do
 #
 TYPE_INT                        = (0x10)                            # flag do tipo 'int'
 TYPE_STRING                     = (0x20)                            # flag do tipo 'texto'
-TYPE_FILE                       = (0x30)                            # flag do tipo 'arquivo'
+TYPE_CONFIRM                    = (0x30)                            # flag do tipo 'confirmar'
 INPUT_CMD                       = (0x80)                            # flag do tipo 'comando'
 INVALID_INPUT_INT               = (-1)                              # flag para 'input númerico inválido'
 INVALID_INPUT_STRING            = 'null'                            # flag para 'input texto inválido' 
@@ -82,23 +81,19 @@ MENU_APRESENTATION_TEAM         = (9)                               # Menu 'Intr
 MENU_APRESENTATION_SYSTEM       = (10)                              # Menu 'Sobre o Trabalho'
 #
 #
-#
 #   BIBLIOTECAS - INTERFACE DE MENUS
 #
-#
-#                                                              
+#                                                         
 import os
 import platform
 import time
 import sys
 #  
 #
-#
 #   VARIÁVEIS GLOBAL - INTERFACE DE MENUS
 #
 #
 input_name  = ''        # Variável global - armazena o input do Nome digitado
-# input_phone = ''        # Variável global - armazena o input da lista de telefones ou telefone digitado
 #
 #
 #   FUNÇÕES - INTERFACE DE MENUS
@@ -122,14 +117,11 @@ def GetTerminalBounds(width = TERMINAL_WIDTH):
 #
 #   'SendTerminalCommand(cmd)' envia um comando 'cmd'(sem o prefixo) para o terminal'
 def SendTerminalCommand(cmd):
-    global COMMAND_MENU , COMMAND_QUIT
-
     #   /menu
     if cmd == COMMAND_MENU:
         TerminalDelay(500)
         ClearTerminal()
         CreateTerminalMenu(MENU_MAIN)
-
     #   /quit
     if cmd == COMMAND_QUIT:
         ClearTerminal()
@@ -138,90 +130,51 @@ def SendTerminalCommand(cmd):
         ClearTerminal()
         print("\n[ » ] Programa encerrado\n")
         KillTerminal()
-
+    #   /reload
     if cmd == COMMAND_RELOAD:
         TerminalDelay(WAITING_TIME_MS)
         ClearTerminal()
         print("\n[ » ] Reiniciando programa...\n")
         TerminalDelay(WAITING_TIME_MS)
         main()
-
     else:
         return 0
 #
 #   'SendTerminalWarning(msg)' envia uma mensagem de alerta a'msg' para o terminal'
 def SendTerminalWarning(msg):
     ClearTerminal()
-    
-    print(GetTerminalBounds() + "\n" + "Alerta".center(TERMINAL_WIDTH) + '\n')
-    print(msg)
-    print(GetTerminalBounds())
-    TerminalDelay(6000)
+    print(GetTerminalBounds() + "\n" + "Alerta".center(TERMINAL_WIDTH) + '\n\n' + msg + '\n' + GetTerminalBounds())
+    TerminalDelay(APRESENTATION_TIME_MS)
     SendTerminalCommand(COMMAND_QUIT)
 #
-#
+#   'SendTerminalMessage(msg)' envia uma mensagem 'msg' para o terminal'
 def SendTerminalMessage(msg, flag = True):
-    
     print('\n' + msg)
     if flag:
         print(GetTerminalBounds()) 
         TerminalDelay(WAITING_TIME_MS - 500)
-        SendTerminalCommand(COMMAND_MENU)
-
+#
 #   'GetTerminalInput()' trata as entradas digitadas: tipo arquivo, número e texto'
-def GetTerminalInput(input_msg, input_type, min_range = -1, max_range = -1, len_txt = MAX_TEXT_LEN, eflag = False, directory = DIR_DEFAULT):
+def GetTerminalInput(input_msg, input_type, min_range = -1, max_range = -1, len_txt = MAX_TEXT_LEN):
 
     default_msg = input_msg
-
-    if input_type == TYPE_FILE:
-        while True:
-            input_txt = input(input_msg)
             
-            if '/' in input_txt: 
-                if SendTerminalCommand(input_txt.removeprefix(COMMAND_PREFIX)):
-                    return INPUT_CMD
-                
-            flag = True
-            for i in range(len(input_txt)):
-                letter = ord(input_txt[i])
-                if  (letter >= 48 and letter <= 57) or (letter >= 65 and letter <= 90) or (letter >= 97 and letter <= 122):
-                    continue
-                else:
-                    flag = False
-                    break
-
-            if not flag:
-                input_msg = "\n[ x ] O nome digitado NÃO É VÁLIDO para nomear arquivos\n" + GetTerminalBounds()
-                continue
-            
-            if(len(input_txt) > len_txt):
-                input_msg = f"\n[ x ] Entrada INVÁLIDA. Escreva um NOME com no máximo 10 caracteres:\n" + GetTerminalBounds()
-                continue
-
-            if os.path.exists(directory) != eflag:
-                input_msg = f"\n[ x ] \"{directory}\""
-                input_msg += " JÁ EXISTE:\n" if not eflag else " NÃO EXISTE:\n" + GetTerminalBounds()
-                continue
-
-            return input_txt
-                
     if input_type == TYPE_INT:
         while True:
             input_txt = input(input_msg + default_msg if default_msg != input_msg else input_msg)
-                
+
             if '/' in input_txt: 
                 if SendTerminalCommand(input_txt.removeprefix(COMMAND_PREFIX)):
                     return INPUT_CMD
                 else: 
                     input_msg = f"\n[ x ] O comando digitado NÃO EXISTE. Tente novamente\n" + GetTerminalBounds()
                     continue
-            
             if not input_txt.isnumeric():
                 input_msg = f"\n[ x ] Entrada INVÁLIDA. Digite um NÚMERO INTEIRO entre {min_range} e {max_range}.\n" + GetTerminalBounds()
                 continue
 
             input_value = int(input_txt)
-            
+
             if min_range != max_range:
                 if (input_value < min_range or input_value > max_range):    
                     input_msg = f"\n[ x ] Entrada INVÁLIDA. Digite UM VALOR entre {min_range} e {max_range}.\n"
@@ -230,24 +183,20 @@ def GetTerminalInput(input_msg, input_type, min_range = -1, max_range = -1, len_
                 if (input_value != min_range) and min_range != -1:    
                     input_msg = f"\n[ x ] Entrada INVÁLIDA. Só há UMA OPÇÃO {min_range}.\n" + GetTerminalBounds()
                     continue
-
             return input_value
 
     if input_type == TYPE_STRING:
         while True:
             input_txt = input(input_msg + default_msg if default_msg != input_msg else input_msg)
-            
             if '/' in input_txt: 
                 if SendTerminalCommand(input_txt.removeprefix(COMMAND_PREFIX)):
                     return INPUT_CMD
                 else: 
                     input_msg = f"\n[ x ] O comando digitado NÃO EXISTE. Tente novamente\n" + GetTerminalBounds()
                     continue
-
             if(len(input_txt) > len_txt):
                 input_msg = f"\n[ x ] Entrada INVÁLIDA. Escreva UM TEXTO com no MÁXIMO {MAX_TEXT_LEN} caracteres:\n" + GetTerminalBounds()
                 continue
-
             return input_txt
 #
 #   'SendTermialInput(msg, typeinput, menuid, min, max)'
@@ -255,20 +204,12 @@ def GetTerminalInput(input_msg, input_type, min_range = -1, max_range = -1, len_
 #   Envia uma mensagem e um campo para inserir uma entrada (input) na interface. A qual é analisada
 #   posteriormente em 'GetTerminalInput(input_msg, typevar, min_range, max_range, len_txt)'
 #
-def SendTermialInput(msg, input_type, menuid, min = -1, max = -1, len_txt = MAX_TEXT_LEN, exists = False):
-    
-    if input_type == TYPE_FILE:
-        input_txt = INVALID_INPUT_STRING
-        while True:
-            input_txt = GetTerminalInput(msg, input_type, min_range = min, max_range = max, eflag = exists)
-            if input_txt == INPUT_CMD: return 1
-            else:  
-                return SendMenuResponse(menuid, input_txt)
+def SendTermialInput(msg, input_type, menuid = 0, min = -1, max = -1, len_txt = MAX_TEXT_LEN):
             
     if input_type == TYPE_INT:
         input_value = INVALID_INPUT_INT
         while True:
-            input_value = GetTerminalInput(msg, input_type, min_range = min, max_range = max, eflag = exists)
+            input_value = GetTerminalInput(msg, input_type, min_range = min, max_range = max)
             if input_value == INPUT_CMD: return 1
             else:  
                 return SendMenuResponse(menuid, input_value)
@@ -280,6 +221,16 @@ def SendTermialInput(msg, input_type, menuid, min = -1, max = -1, len_txt = MAX_
             if input_txt == INPUT_CMD: return 1
             else: 
                 return SendMenuResponse(menuid, input_txt)
+    
+    if input_type == TYPE_CONFIRM:
+        input_value = INVALID_INPUT_INT
+        while True:
+            input_value = input(msg + '\n' + TERMINAL_INPUT_MSG_INT)
+            if(input_value == '1' or input_value == '2'):
+                break
+            else:
+                msg ="\n" + GetTerminalBounds() + f"\n[ x ] Digite APENAS ({min}) ou ({max})\n"
+        return int(input_value)
 #
 #   'CreateTerminalMenu(menuid)' cria o menu de acordo com os arquivos .txt dentros da pasta 'menus'
 def CreateTerminalMenu(menuid):
@@ -311,17 +262,16 @@ def CreateTerminalMenu(menuid):
             if '<right>' in line:
                 line = line.replace('<right>', "")
                 line = line.rjust(TERMINAL_WIDTH)
-            
             if '<bounds>' in line:
                 line = GetTerminalBounds(TERMINAL_WIDTH)
-
             if line == "<request-input-str>" or line == "<request-input-int>":
                 continue
 
             txt += line
     
     print(txt, end = '')
-    
+    file.close()
+
     if line == "<request-input-str>":
         SendTermialInput(TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
     elif line == "<request-input-int>":
@@ -333,63 +283,40 @@ def CreateTerminalMenu(menuid):
 #
 #   'SendMenuResponse()' decide quais serão os próximos passos do programa de acordo com a entrada digitada pelo usuário
 def SendMenuResponse(menuid, input_value):
+    global input_name, phone_dict
     
-    global input_name
-    
-    if(menuid == MENU_MAIN):
-    
+    if(menuid == MENU_MAIN):  
+        if(input_value + 2 == MENU_APRESENTATION_TEAM or input_value + 2 == MENU_APRESENTATION_SYSTEM):
+            input("[ » ] Aperte QUALQUER TECLA para voltar ao MENU: ")
+            CreateTerminalMenu(MENU_MAIN)
+                 
         if(input_value + 2 == MENU_PRINT_DICTIO):
-
             CreateTerminalMenu(MENU_PRINT_DICTIO)
             
-            print(f"\n\n» Lista de usuários no Dicionário:")
-    
-            key_list = phone_dict.keys()
+            str_print = '\n\nphone_dict = \n{\n'
 
-            if(len(key_list) == 0):
-                print(f"\n\t• Lista de usuários V A Z I A", end = '')
-            
-            else:
-                for key in key_list:
-                    phones = GetDictKeyValue(phone_dict, key)
-                    print(f"\n\t• Lista de telefone do usuário '{key}':\n", end = '')
-                    for idx, phone in enumerate(phones):
-                        print(f"\t\t{idx + 1:0>2d}. {phone}\n", end = '')
+            for key in phone_dict.keys():
+                str_print += " " * 3 + f"'{key}'" + " " * (10 - len(key)) + f": {phone_dict[key]}\n" 
 
-            print("\n\n",  end = '')
-            print(GetTerminalBounds())
-            input("[ » ] Aperte Enter para voltar ao MENU: ")
+            str_print += '}\n'
+
+            print("\n» Lista de usuários no Dicionário:", str_print + GetTerminalBounds())
+            input("[ » ] Aperte QUALQUER TECLA para voltar ao MENU: ")
             CreateTerminalMenu(MENU_MAIN)
-
         else:
             CreateTerminalMenu(input_value + 2)
 
     if(menuid == MENU_INSERT_NEW_KEY_NAME):
-
         name = input_value
 
-        if(not IsValidName(name)):
-            SendTermialInput('\n[ x ] O NOME digitado é INVÁLIDO, use APENAS LETRAS [A-Z / a-z]: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
-        
-        if(IsDictKeyExists(phone_dict, name)):
-            SendTermialInput('\n[ x ] O NOME digitado JÁ EXISTE, tente outro:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1   
+        if not IsValidInputName(name, False, menuid): return ERROR_VALUE
          
-        print(f"\n[ • ] Deseja criar uma CHAVE de nome » {name} « ?\n\n\t1. Sim, quero criar com esse nome\n\t2. Não, quero voltar e digitar outro nome\n" + GetTerminalBounds(), end = "")
+        txt = f"\n[ • ] Deseja CRIAR uma CHAVE de nome » {name} « ?\n\n\t1. Sim, quero CRIAR com esse nome\n\t"
+        txt += "2. Não, quero VOLTAR e digitar OUTRO nome\n" + GetTerminalBounds()
             
-        input_txt = ''
-        input_msg = TERMINAL_INPUT_MSG_INT
+        input_value = SendTermialInput(msg = txt, input_type = TYPE_CONFIRM, min = 1, max = 2)
 
-        while True:
-            input_txt = input(input_msg)
-            if(input_txt == '1' or input_txt == '2'):
-                break
-            else:
-                input_msg = "[ x ] Digite APENAS '1' ou '2'\n" + TERMINAL_INPUT_MSG_INT
-
-        if(not (int(input_txt) - 1)):
-            
+        if(not (input_value - 1)):
             input_name = name
             CreateTerminalMenu(MENU_INSERT_NEW_KEY_PHONE)
         else:
@@ -404,161 +331,159 @@ def SendMenuResponse(menuid, input_value):
             if(IsValidPhone(input_list[idx]) and input_list[idx] != ''):
                 phone_list.append(input_list[idx])
 
-        if(len(phone_list) == 0):
-            SendTermialInput('\n[ x ] A LISTA digitada está VAZIA: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
-        
-        if(has_duplicates(phone_list)):
-            SendTermialInput('\n[ x ] A LISTA possui TELEFONES REPETIDOS: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
-        
-        if(not IsValidPhoneList(phone_list)):
-            SendTermialInput('\n[ x ] A LISTA de TELEFONES digitada é INVÁLIDA, use APENAS NÚMEROS [0-9]:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1        
+        if not IsValidInputPhoneList(phone_list, False, menuid): return ERROR_VALUE     
         
         txt = '\n[ • ] Lista de TELEFONES digitado:\n\n'
-        for phone in phone_list:
-            txt += f'\t» {idx}. {phone}\n'
+        for idx, phone in enumerate(phone_list):
+            txt += f'\t» {idx + 1}. {phone}\n'
 
-        print(txt + f"\n[ • ] Deseja inserir a lista de valores dentro da CHAVE » {input_name} « ?\n\n\t1. Sim, quero colocar esses valores na chave\n\t2. Não, quero voltar e digitar outra lista\n" + GetTerminalBounds(), end = "")
-            
-        input_txt = ''
-        input_msg = TERMINAL_INPUT_MSG_INT
-
-        while True:
-            input_txt = input(input_msg)
-            if(input_txt == '1' or input_txt == '2'):
-                break
-            else:
-                input_msg = "[ x ] Digite APENAS '1' ou '2'\n" + TERMINAL_INPUT_MSG_INT
-
-        if(not (int(input_txt) - 1)):
+        txt += f"\n[ • ] Deseja INSERIR a lista de TELEFONE(S) dentro da CHAVE » {input_name} « ?"
+        txt += "\n\n\t1. Sim, quero INSERIR esse(s) TELEFONE(S) na chave\n\t2. Não, quero VOLTAR e digitar OUTRA lista\n" + GetTerminalBounds()
+        
+        input_value = SendTermialInput(msg = txt, input_type = TYPE_CONFIRM, min = 1, max = 2)
+        
+        if(not (input_value - 1)):
             CreateDictKey(phone_dict, input_name, phone_list)
+            SendTerminalCommand(COMMAND_MENU)
         else:
             CreateTerminalMenu(MENU_INSERT_NEW_KEY_PHONE)
                 
     if(menuid == MENU_INSERT_NEW_VALUE_NAME):
-
         name = input_value
 
         if(not IsValidName(name)):
             SendTermialInput('\n[ x ] O NOME digitado é INVÁLIDO, use APENAS LETRAS [A-Z / a-z]: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
+            return False
         
         if(not IsDictKeyExists(phone_dict, name)):
-            print(f"\n[ ! ] O NOME '{name}' NÃO EXISTE no dicionário.\n" + f"\n» Deseja criar UM NOVO NOME '{name}' ?\n\n\t1. Sim, quero criar um nome novo\n\t2. Não, quero digitar outro nome\n" + GetTerminalBounds(), end = "")
-            
-            input_txt = ''
-            input_msg = TERMINAL_INPUT_MSG_INT
-            while True:
-                input_txt = input(input_msg)
-                if(input_txt == '1' or input_txt == '2'):
-                    break
-                else:
-                    input_msg = "[ x ] Digite APENAS '1' ou '2'\n" + TERMINAL_INPUT_MSG_INT
+            txt = f"\n[ ! ] O NOME '{name}' NÃO EXISTE no dicionário.\n" + f"\n» Deseja criar UM NOVO NOME '{name}' ?\n\n"
+            txt += "\t1. Sim, quero CRIAR um nome novo\n\t2. Não, quero digitar OUTRO NOME\n" + GetTerminalBounds()
 
-            if(not (int(input_txt) - 1)):
+            input_value = SendTermialInput(msg = txt, input_type = TYPE_CONFIRM, min = 1, max = 2)
+            
+            if(not (input_value - 1)):
                 input_name = name
                 CreateTerminalMenu(MENU_INSERT_NEW_KEY_PHONE)
-                SendTerminalCommand(COMMAND_MENU)
             else:
-                SendTerminalCommand(MENU_INSERT_NEW_VALUE_NAME)
+                CreateTerminalMenu(MENU_INSERT_NEW_VALUE_NAME)
 
         input_name = name
         CreateTerminalMenu(MENU_INSERT_NEW_VALUE_PHONE)
 
     if(menuid == MENU_INSERT_NEW_VALUE_PHONE):
-
         phone = input_value
 
-        if(not IsValidPhoneList(phone)):
-            SendTermialInput('\n[ x ] O TELEFONE digitado é INVÁLIDO, use APENAS NÚMEROS [0-9]:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1      
-        
-        if(IsValueInDictKeyExists(phone_dict, input_name, phone)):
-            SendTermialInput('\n[ x ] O TELEFONE digitado JÁ EXISTE dentro da LISTA:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1  
+        if not IsValidInputPhoneList([phone], False, menuid): return ERROR_VALUE
         
         AppendDictValue(phone_dict, input_name, phone)
-        SendTerminalCommand(COMMAND_MENU)  
+
+        txt = f"\n[ • ] Deseja ADICIONAR outro telefone dentro da lista telefônica de '{input_name}' ?\n\n"
+        txt += "\t1. Sim, quero ADICIONAR mais telefones\n\t2. Não, quero VOLTAR para o menu"
+
+        input_value = SendTermialInput(msg = txt, input_type = TYPE_CONFIRM, min = 1, max = 2)
+
+        if(not (input_value - 1)):
+            CreateTerminalMenu(MENU_INSERT_NEW_VALUE_PHONE)
+        else:
+            SendTerminalCommand(COMMAND_MENU)  
 
     if(menuid == MENU_REMOVE_VALUE_NAME):
         name = input_value
 
-        if(not IsValidName(name)):
-            SendTermialInput('\n[ x ] O NOME digitado é INVÁLIDO, use APENAS LETRAS [A-Z / a-z]: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
-        
-        if(not IsDictKeyExists(phone_dict, name)):
-            SendTermialInput('\n[ x ] O NOME digitado NÃO EXISTE, tente outro:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1    
+        if not IsValidInputName(name, True, menuid): return ERROR_VALUE
                 
         input_name = name
         CreateTerminalMenu(MENU_REMOVE_VALUE_PHONE)
 
-    if(menuid == MENU_REMOVE_VALUE_PHONE):
-        
+    if(menuid == MENU_REMOVE_VALUE_PHONE):        
         phone = input_value
 
-        if(not IsValidPhoneList(phone)):
-            SendTermialInput('\n[ x ] O TELEFONE digitado é INVÁLIDO, use APENAS NÚMEROS [0-9]:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1  
-            
-        if(not IsValueInDictKeyExists(phone_dict, input_name, phone)):
-            SendTermialInput('\n[ x ] O TELEFONE digitado NÃO EXISTE na LISTA, tente outro:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1    
+        if not IsValidInputPhoneList([phone], True, menuid): return ERROR_VALUE
         
         RemoveDictValue(phone_dict, input_name, phone)
-        SendTerminalCommand(COMMAND_MENU)
+
+        txt = f"\n[ • ] Deseja REMOVER outro telefone de dentro da lista telefônica de '{input_name}' ?\n\n"
+        txt += "\t1. Sim, quero REMOVER mais telefones\n\t2. Não, quero VOLTAR para o menu"
+        input_value = SendTermialInput(msg = txt, input_type = TYPE_CONFIRM, min = 1, max = 2)
+
+        if(not (input_value - 1)):
+            CreateTerminalMenu(MENU_REMOVE_VALUE_PHONE)
+        else:
+            SendTerminalCommand(COMMAND_MENU)  
   
-    if(menuid == MENU_REMOVE_NAME):
+    if(menuid == MENU_REMOVE_NAME):       
+        name = input_value
 
-        input_list = str(input_value).split(" ")
-
-        if(len(input_list) != 1):
-            SendTermialInput('\n[ x ] Digite um NOME APENAS: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
-        
-        name = input_list[0]
-
-        if(not IsValidName(name)):
-            SendTermialInput('\n[ x ] O NOME digitado é INVÁLIDO, use APENAS LETRAS [A-Z / a-z]: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
-        
-        if(not IsDictKeyExists(phone_dict, name)):
-            SendTermialInput('\n[ x ] O nome digitado NÃO EXISTE, tente outro:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1   
+        if not IsValidInputName(name, True, menuid): return ERROR_VALUE
         
         RemoveDictKey(phone_dict, name)
-        SendTerminalCommand(COMMAND_MENU) 
 
-    if(menuid == MENU_GET_PHONE):
+        txt = f"\n[ • ] Deseja REMOVER outro nome do dicionário ?\n\n"
+        txt += "\t1. Sim, quero REMOVER outro nome\n\t2. Não, quero VOLTAR para o menu"
+        input_value = SendTermialInput(msg = txt, input_type = TYPE_CONFIRM, min = 1, max = 2)
 
-        input_list = str(input_value).split(" ")
+        if(not (input_value - 1)):
+            CreateTerminalMenu(MENU_REMOVE_NAME)
+        else:
+            SendTerminalCommand(COMMAND_MENU)  
 
-        if(len(input_list) != 1):
-            SendTermialInput('\n[ x ] Digite UM NOME APENAS: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
+    if(menuid == MENU_GET_PHONE):       
+        name = input_value
         
-        name = input_list[0]
-        
-        if(not IsValidName(name)):
-            SendTermialInput('\n[ x ] O NOME digitado é INVÁLIDO, use APENAS LETRAS [A-Z / a-z]: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1
-
-        if(not IsDictKeyExists(phone_dict, name)):
-            SendTermialInput('\n[ x ] O NOME digitado NÃO EXISTE, tente outro:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
-            return 1  
-    
+        if not IsValidInputName(name, True, menuid): return ERROR_VALUE
         phones = GetDictKeyValue(phone_dict, name)
 
         print(f"\n• Lista de telefone de '{name}':\n")
         for idx in range(len(phones)):
-            print(f"\t{idx + 1:0>2d}. {phones[idx]}\n")
+            print(f"\t{idx + 1:0>2d}. {phones[idx]}")
         
         SendTermialInput("\n[ ! ] Digite outro NOME OU digite /menu para VOLTAR ao MENU\n" + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
 
     return 1
+#
+#   'IsValidInputName()' verifica o input do nome
+def IsValidInputName(name, must_exists, menuid):
+    global phone_dict
+    if not IsValidName(name):
+        SendTermialInput('\n[ x ] O NOME digitado é INVÁLIDO, use APENAS LETRAS [A-Z / a-z]: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
+        return False
+    if not must_exists:
+        if IsDictKeyExists(phone_dict, name):
+            SendTermialInput('\n[ x ] O NOME digitado JÁ EXISTE, tente outro:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
+            return False 
+    else:
+        if not IsDictKeyExists(phone_dict, name):
+            SendTermialInput('\n[ x ] O NOME digitado NÃO EXISTE, tente outro:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
+            return False     
+
+    return True
+#
+#   'IsValidInputName()' verifica do(s) telefone(s)
+def IsValidInputPhoneList(phone_list, must_exists, menuid):
+
+    global input_name, phone_dict
+
+    if len(phone_list) == 0:
+        SendTermialInput('\n[ x ] A LISTA digitada está VAZIA: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
+        return False
+    if has_duplicates(phone_list):
+        SendTermialInput('\n[ x ] A LISTA possui TELEFONES REPETIDOS: \n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
+        return False
+    if not IsValidPhoneList(phone_list):
+        SendTermialInput('\n[ x ] A LISTA de TELEFONES digitada é INVÁLIDA, use APENAS NÚMEROS [0-9]:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
+        return False  
+    if(IsDictKeyExists(phone_list, input_name)):
+        for phone in phone_list:
+            if not must_exists:
+                if(IsValueInDictKeyExists(phone_dict, input_name, phone)):
+                    SendTermialInput('\n[ x ] EXISTE(M) TELEFONE(S) na LISTA digitada que JÁ EXISTE na LISTA da chave:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
+                    return False 
+            else:
+                if(not IsValueInDictKeyExists(phone_dict, input_name, phone)):
+                    SendTermialInput('\n[ x ] EXISTE(M) TELEFONE(S) na LISTA digitada que NÃO EXISTE na LISTA da chave:\n' + GetTerminalBounds() + TERMINAL_INPUT_MSG_STRING, TYPE_STRING, menuid, len_txt = 64)
+                    return False                 
+    return True
+#
 #
 #
 #   VARIÁVEL GLOBAL - DICTIO
@@ -581,9 +506,7 @@ def IsValueInDictKeyExists(dictio, key, value):
         SendTerminalWarning(f"[ x ] NÃO foi possível LOCALIZAR a CHAVE '{key}' dentro do dicionário, pois a mesma NÃO EXISTIA.")
         return False
 
-    values_list = dictio[f"{key}"]
-
-    return value in values_list
+    return value in dictio[f"{key}"]
 #
 #   Cria uma chave 'key' com valor padrão 'value' dentro do dicionário 'dictio', caso já não exista
 #  
@@ -699,6 +622,9 @@ def IsValidPhoneList(phone_list):
 #
 #   Verifica se um telefone é válido [0-9]        
 def IsValidPhone(phone_number):
+    if phone_number == REMOVE_KEY_VALUE:
+        return False
+    
     for number in phone_number:
         if (not ((48 <= ord(number) and ord(number) <= 57))):
             return False

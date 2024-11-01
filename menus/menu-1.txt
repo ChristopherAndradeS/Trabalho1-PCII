@@ -9,5 +9,5 @@
 <t>• Christopher Andrade    <t>Eng. Elétrica - T04<br>
 <t>• Henrique Nietzsch Melo <t>Eng. Elétrica - T04<br>
 <t>• Felipe Alencar Chiarini<t>Eng. Elétrica - T04<br>
-<t>• Max Muller             <t>Eng. Elétrica - T04<br><br>
+<t>• Max Muller             <t>Eng. Elétrica - T04<br>
 <bounds>
