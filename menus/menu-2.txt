@@ -7,8 +7,6 @@
 <center>3. Excluir Telefone         4. Excluir Nome        
 <br>
 <center>5. Consultar Telefone       6. Consultar Dicionário
-<br>
-<center>7. Intregrantes do Grupo    8. Sobre o Trabalho    
 <br><br>
 <center>[ i ] '/quit' para encerrar o programa
 <br>
