@@ -384,11 +384,11 @@ def SendMenuResponse(menuid, input_value):
         input_value = SendTermialInput(msg = txt, input_type = TYPE_CONFIRM, min = 1, max = 2)
 
         if(not (input_value - 1)):
-            if IsEmptyDict(phone_dict):
-                SendTerminalMessage("[ ! ] Dicionário VAZIO, voltando para o MENU PRINCIPAL")
+            if(not IsDictKeyExists(phone_dict, input_name)):
+                SendTerminalMessage("[ ! ] Chave NÃO EXISTE, voltando para o MENU PRINCIPAL")
                 TerminalDelay(WAITING_TIME_MS * 0.5)
-                SendTerminalCommand(COMMAND_MENU)
-
+                return SendTerminalCommand(COMMAND_MENU)
+                
             CreateTerminalMenu(MENU_REMOVE_VALUE_PHONE)
         else:
             SendTerminalCommand(COMMAND_MENU)  
